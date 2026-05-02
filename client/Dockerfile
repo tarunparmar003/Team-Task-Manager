@@ -18,15 +18,15 @@ RUN npm run build
 # ---- Stage 2: nginx ----
 FROM nginx:1.27-alpine AS runner
 
-# Drop default config and use our SPA-aware one
+# Default for local runs; Railway overrides at runtime
+ENV PORT=80
+
+# Drop default config and use our SPA-aware template (envsubst by official nginx image entrypoint)
 RUN rm /etc/nginx/conf.d/default.conf
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Run as the non-root nginx user (already exists in the image)
-USER nginx
-
 EXPOSE 80
 
-# nginx default entrypoint runs the daemon in foreground
+# nginx official image entrypoint substitutes ${PORT} from env into the template before starting
