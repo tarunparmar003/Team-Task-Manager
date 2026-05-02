@@ -3,6 +3,13 @@
 A full-stack collaborative task tracker built for the Ethara.ai full-stack assignment.
 Multi-tenant by **project** — each project has its own members, roles, and tasks.
 
+## Live app
+
+**https://client-production-419f.up.railway.app**
+
+- API: https://server-production-34a05.up.railway.app (try `/health`)
+- Sign up with any email/password (≥8 chars), or use the demo account: `tarun@prod.test` / `password123`
+
 **Stack:** TypeScript everywhere · Node 20 + Express + Prisma + PostgreSQL · React 18 + Vite + Tailwind CSS · TanStack Query · Multi-stage Docker builds · Nginx for SPA serving · Railway for deployment.
 
 ---
