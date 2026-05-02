@@ -1,4 +1,4 @@
-# Multi-stage: build the React bundle, serve via nginx.
+# Multi-stage: build the React bundle, serve via nginx as a non-root user.
 
 # ---- Stage 1: build ----
 FROM node:20-alpine AS builder
@@ -15,18 +15,18 @@ COPY src ./src
 
 RUN npm run build
 
-# ---- Stage 2: nginx ----
-FROM nginx:1.27-alpine AS runner
+# ---- Stage 2: nginx (unprivileged variant — runs as UID 101, all cache dirs writable) ----
+FROM nginxinc/nginx-unprivileged:1.27-alpine AS runner
 
-# Default for local runs; Railway overrides at runtime
-ENV PORT=80
+# Default for local runs; Railway overrides PORT at runtime
+ENV PORT=8080
 
-# Drop default config and use our SPA-aware template (envsubst by official nginx image entrypoint)
-RUN rm /etc/nginx/conf.d/default.conf
+USER root
+RUN rm -f /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/templates/default.conf.template
-
 COPY --from=builder /app/dist /usr/share/nginx/html
+USER 101
 
-EXPOSE 80
+EXPOSE 8080
 
-# nginx official image entrypoint substitutes ${PORT} from env into the template before starting
+# Official entrypoint substitutes ${PORT} from env into templates/*.template before starting nginx
